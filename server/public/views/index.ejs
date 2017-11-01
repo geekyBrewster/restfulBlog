@@ -1,0 +1,20 @@
+<% include partials/header %>
+<div>
+
+  <header>
+    <div>
+      <h1>Welcome to the RESTful Blog!</h1>
+    </div>
+  </header>
+
+    <% blogs.forEach(function(blog){ %>
+    <div>
+      <h2><%= blog.title %></h2>
+      <img src="<%= blog.image_url %>">
+      <h3><%= blog.created %></h3>
+      <p><%= blog.blog_post%></p>
+    </div>
+    <% }) %>
+
+</div>
+<% include partials/footer %>
