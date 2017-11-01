@@ -29,7 +29,7 @@ app.get('/blogs', function(req, res){
           console.log('There was an error making SELECT query: ', errMakingQuery);
           res.sendStatus(500);
         } else {
-          console.log('Retrieved all blogs from DB: ', result.rows);
+          //console.log('Retrieved all blogs from DB: ', result.rows);
           res.render("index", {blogs: result.rows}); //second variable is data object passed to client side
         }
       });
