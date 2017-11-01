@@ -7,10 +7,11 @@ var pool = require('./modules/pool.js');
 var port = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.set('view engine', 'ejs');
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, './public/views'));
+app.set('view engine', 'ejs');
 
-
+// SHOW route
 app.get('/blogs', function(req, res){
   console.log("Retrieving blogs");
   //Get blogs from the DB
@@ -35,7 +36,24 @@ app.get('/blogs', function(req, res){
       });
     } // end of else
   }); //end of pool.connect
-}); //End of Show GET route
+}); //End of SHOW route
+
+// NEW route
+app.get('/blogs/new', function(req, res){
+  res.render('new');
+});
+
+// CREATE route
+
+// EDIT route
+
+// UPDATE route
+
+// DESTROY route
+
+
+
+
 
 app.get('/', function(req, res) {
   console.log('request for index page');
