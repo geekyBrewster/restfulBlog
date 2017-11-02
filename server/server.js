@@ -119,6 +119,7 @@ app.get('/blogs/:id', function(req, res){
 
 // EDIT route
 
+
 // UPDATE route
 
 // DESTROY route
