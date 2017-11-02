@@ -44,6 +44,51 @@ app.get('/blogs/new', function(req, res){
 });
 
 // CREATE route
+app.post('/blogs', function(req, res){
+  //get today's date
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth() + 1; //January is 0!
+  var yyyy = today.getFullYear();
+  //Format single digit month and year
+  if(dd<10) {
+    dd = '0' + dd;
+  }
+  if(mm<10) {
+    mm = '0' + mm;
+  }
+  today = mm + '/' + dd + '/' + yyyy;
+
+  //get data from form
+  var title = req.body.title;
+  var image = req.body.image_url;
+  var post = req.body.blog_post;
+  var user = 1; //Need to dynamically get this at some point
+
+  //add to blog post DB
+  pool.connect(function(errConnectingToDatabase, db, done){
+    if(errConnectingToDatabase) {
+      console.log('There was an error connecting to database: ', errConnectingToDatabase);
+      res.sendStatus(500);
+    } else {
+      // MAKE DB QUERY
+      db.query("insert into posts(user_id, title, image_url, blog_post, created) " +
+      "values($1, $2, $3, $4, $5);", [user, title, image, post, today],
+      function(errMakingQuery, result){
+        done();
+        if(errMakingQuery){
+          console.log('There was an error making INSERT query: ', errMakingQuery);
+          res.sendStatus(500);
+        } else {
+          console.log('Blog post added');
+          //redirect back to blog main page
+          res.redirect('/blogs');
+        }
+      });
+    } // end of else
+  }); //end of pool.connect
+}); //end of CREATE route
+
 
 // EDIT route
 
