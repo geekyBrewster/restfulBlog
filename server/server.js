@@ -11,7 +11,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, './public/views'));
 app.set('view engine', 'ejs');
 
-// SHOW route
+// INDEX route
 app.get('/blogs', function(req, res){
   console.log("Retrieving blogs");
   //Get blogs from the DB
@@ -21,7 +21,7 @@ app.get('/blogs', function(req, res){
       res.sendStatus(500);
     } else {
       // MAKE DB QUERY
-      db.query('SELECT "posts"."title", "posts"."image_url", "posts"."blog_post",'+
+      db.query('SELECT "posts"."id", "posts"."title", "posts"."image_url", "posts"."blog_post",'+
       '"posts"."created", "users"."name" FROM "posts" JOIN "users" '+
       'ON "posts"."user_id" = "users"."id";',
       function(errMakingQuery, result){
@@ -36,7 +36,7 @@ app.get('/blogs', function(req, res){
       });
     } // end of else
   }); //end of pool.connect
-}); //End of SHOW route
+}); //End of INDEX route
 
 // NEW route
 app.get('/blogs/new', function(req, res){
@@ -89,6 +89,33 @@ app.post('/blogs', function(req, res){
   }); //end of pool.connect
 }); //end of CREATE route
 
+// SHOW route
+app.get('/blogs/:id', function(req, res){
+  console.log("Retrieving blogs");
+  var id = req.params.id;
+  //Get blogs from the DB
+  pool.connect(function(errConnectingToDatabase, db, done){
+    if(errConnectingToDatabase) {
+      console.log('There was an error connecting to database: ', errConnectingToDatabase);
+      res.sendStatus(500);
+    } else {
+      // MAKE DB QUERY
+      db.query('SELECT "posts"."title", "posts"."image_url", "posts"."blog_post",'+
+      '"posts"."created", "users"."name" FROM "posts" JOIN "users" '+
+      'ON "posts"."user_id" = "users"."id" WHERE "posts"."id" = $1;', [id],
+      function(errMakingQuery, result){
+        done();
+        if(errMakingQuery){
+          console.log('There was an error making SELECT query: ', errMakingQuery);
+          res.sendStatus(500);
+        } else {
+          //console.log('Retrieved all blogs from DB: ', result.rows);
+          res.render("show", {blogs: result.rows}); //second variable is data object passed to client side
+        }
+      });
+    } // end of else
+  }); //end of pool.connect
+}); //End of SHOW route
 
 // EDIT route
 
@@ -99,7 +126,7 @@ app.post('/blogs', function(req, res){
 
 
 
-
+// Catch all redirect
 app.get('/', function(req, res) {
   console.log('request for index page');
   res.redirect("/blogs");

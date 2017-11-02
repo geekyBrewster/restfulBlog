@@ -1,0 +1,12 @@
+<% include partials/header %>
+
+<% blogs.forEach(function(blog){ %>
+<div class="ui main text container segment">
+  <h2><%= blog.title %></h2>
+  <img src="<%= blog.image_url %>">
+  <h3><%= blog.created %></h3>
+  <p><%= blog.blog_post%></p>
+</div>
+<% }) %>
+
+<% include partials/footer %>
