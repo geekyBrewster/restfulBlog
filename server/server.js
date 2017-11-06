@@ -1,5 +1,6 @@
 var express = require("express");
 var app = express();
+var expressSanitizer = require('express-sanitizer');
 var path = require("path");
 var bodyParser = require("body-parser");
 var methodOverride = require("method-override");
@@ -11,6 +12,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 //using method-override to have form do PUT request
 //need to tell it what to look for in the query string of the request
 app.use(methodOverride('_method'));
+app.use(expressSanitizer()); //needs to go after body-parser
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, './public/views'));
 app.set('view engine', 'ejs');
@@ -66,7 +68,7 @@ app.post('/blogs', function(req, res){
   //get data from form
   var title = req.body.title;
   var image = req.body.image_url;
-  var post = req.body.blog_post;
+  var post_sanitized = req.sanitize(req.body.blog_post);
   var user = 1; //Need to dynamically get this at some point
 
   //add to blog post DB
@@ -77,7 +79,7 @@ app.post('/blogs', function(req, res){
     } else {
       // MAKE DB QUERY
       db.query("insert into posts(user_id, title, image_url, blog_post, created) " +
-      "values($1, $2, $3, $4, $5);", [user, title, image, post, today],
+      "values($1, $2, $3, $4, $5);", [user, title, image, post_sanitized, today],
       function(errMakingQuery, result){
         done();
         if(errMakingQuery){
@@ -151,7 +153,7 @@ app.put('/blogs/:id', function(req, res){
   //get data from form
   var title = req.body.title;
   var image = req.body.image_url;
-  var post = req.body.blog_post;
+  var post_sanitized = req.sanitize(req.body.blog_post);
 
   //Update blog in the DB
   pool.connect(function(errConnectingToDatabase, db, done){
@@ -161,7 +163,7 @@ app.put('/blogs/:id', function(req, res){
     } else {
       // MAKE DB QUERY
       db.query('UPDATE "posts" SET "title" = $1, "image_url" = $2, "blog_post" = $3 ' +
-      'WHERE "id" = $4;', [title, image, post, req.params.id],
+      'WHERE "id" = $4;', [title, image, post_sanitized, req.params.id],
       function(errMakingQuery, result){
         done();
         if(errMakingQuery){

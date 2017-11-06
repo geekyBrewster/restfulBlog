@@ -14,6 +14,7 @@ CREATE TABLE "posts" (
   "created" date
 );
 
+-- Sample Data --
 INSERT INTO "users" ("name")
 VALUES ('Alex'),('Betty'),('Craig'),('Daniella');
 
