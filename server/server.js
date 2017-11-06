@@ -104,7 +104,7 @@ app.get('/blogs/:id', function(req, res){
       res.sendStatus(500);
     } else {
       // MAKE DB QUERY
-      db.query('SELECT "posts"."title", "posts"."image_url", "posts"."blog_post",'+
+      db.query('SELECT "posts"."id", "posts"."title", "posts"."image_url", "posts"."blog_post",'+
       '"posts"."created", "users"."name" FROM "posts" JOIN "users" '+
       'ON "posts"."user_id" = "users"."id" WHERE "posts"."id" = $1;', [id],
       function(errMakingQuery, result){
@@ -179,10 +179,10 @@ app.put('/blogs/:id', function(req, res){
   }); //end of pool.connect
 }); // end of UPDATE route
 
-
-
 // DESTROY route
-
+app.delete('/blogs/:id', function(req, res){
+  res.send('You have reached the destroy route.');
+});
 
 
 
