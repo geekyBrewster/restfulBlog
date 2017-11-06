@@ -6,3 +6,11 @@ i.icon {
 .container.main {
   margin-top: 5.0em;
 }
+
+#delete {
+  display: inline;
+}
+
+.basic.button {
+  margin-top: 10px;
+}

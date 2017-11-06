@@ -95,9 +95,9 @@ app.post('/blogs', function(req, res){
 
 // SHOW route
 app.get('/blogs/:id', function(req, res){
-  console.log("Retrieving blogs");
-  var id = req.params.id;
-  //Get blogs from the DB
+  console.log("Retrieving blog");
+
+  //Get blog from the DB
   pool.connect(function(errConnectingToDatabase, db, done){
     if(errConnectingToDatabase) {
       console.log('There was an error connecting to database: ', errConnectingToDatabase);
@@ -106,7 +106,7 @@ app.get('/blogs/:id', function(req, res){
       // MAKE DB QUERY
       db.query('SELECT "posts"."id", "posts"."title", "posts"."image_url", "posts"."blog_post",'+
       '"posts"."created", "users"."name" FROM "posts" JOIN "users" '+
-      'ON "posts"."user_id" = "users"."id" WHERE "posts"."id" = $1;', [id],
+      'ON "posts"."user_id" = "users"."id" WHERE "posts"."id" = $1;', [req.params.id],
       function(errMakingQuery, result){
         done();
         if(errMakingQuery){
@@ -124,16 +124,14 @@ app.get('/blogs/:id', function(req, res){
 // EDIT route
 app.get('/blogs/:id/edit', function(req, res){
   console.log("Retrieving blog to edit");
-  //Retrieve initial blog data
-  var id = req.params.id;
-
+  //Retrive initial blog data to update
   pool.connect(function(errConnectingToDatabase, db, done){
     if(errConnectingToDatabase) {
       console.log('There was an error connecting to database: ', errConnectingToDatabase);
       res.sendStatus(500);
     } else {
       // MAKE DB QUERY
-      db.query('SELECT * FROM "posts" WHERE "id" = $1;', [id],
+      db.query('SELECT * FROM "posts" WHERE "id" = $1;', [req.params.id],
       function(errMakingQuery, result){
         done();
         if(errMakingQuery){
@@ -154,9 +152,8 @@ app.put('/blogs/:id', function(req, res){
   var title = req.body.title;
   var image = req.body.image_url;
   var post = req.body.blog_post;
-  var id = req.params.id;
 
-  //Get blogs from the DB
+  //Update blog in the DB
   pool.connect(function(errConnectingToDatabase, db, done){
     if(errConnectingToDatabase) {
       console.log('There was an error connecting to database: ', errConnectingToDatabase);
@@ -164,7 +161,7 @@ app.put('/blogs/:id', function(req, res){
     } else {
       // MAKE DB QUERY
       db.query('UPDATE "posts" SET "title" = $1, "image_url" = $2, "blog_post" = $3 ' +
-      'WHERE "id" = $4;', [title, image, post, id],
+      'WHERE "id" = $4;', [title, image, post, req.params.id],
       function(errMakingQuery, result){
         done();
         if(errMakingQuery){
@@ -181,10 +178,27 @@ app.put('/blogs/:id', function(req, res){
 
 // DESTROY route
 app.delete('/blogs/:id', function(req, res){
-  res.send('You have reached the destroy route.');
-});
-
-
+  //Delete blog from the DB
+  pool.connect(function(errConnectingToDatabase, db, done){
+    if(errConnectingToDatabase) {
+      console.log('There was an error connecting to database: ', errConnectingToDatabase);
+      res.sendStatus(500);
+    } else {
+      // MAKE DB QUERY
+      db.query('DELETE FROM "posts" WHERE "id" = $1;', [req.params.id],
+      function(errMakingQuery, result){
+        done();
+        if(errMakingQuery){
+          console.log('There was an error making DELETE query: ', errMakingQuery);
+          res.sendStatus(500);
+        } else {
+          //console.log('Retrieved all blogs from DB: ', result.rows);
+          res.redirect("/blogs");
+        }
+      });
+    } // end of else
+  }); //end of pool.connect
+}); // end of DELETE route
 
 // Catch all redirect
 app.get('/', function(req, res) {
