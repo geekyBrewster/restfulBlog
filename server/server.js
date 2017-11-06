@@ -2,11 +2,15 @@ var express = require("express");
 var app = express();
 var path = require("path");
 var bodyParser = require("body-parser");
+var methodOverride = require("method-override");
 var pool = require('./modules/pool.js');
 
 var port = process.env.PORT || 5000;
 
 app.use(bodyParser.urlencoded({extended: true}));
+//using method-override to have form do PUT request
+//need to tell it what to look for in the query string of the request
+app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('views', path.join(__dirname, './public/views'));
 app.set('view engine', 'ejs');
@@ -118,9 +122,64 @@ app.get('/blogs/:id', function(req, res){
 }); //End of SHOW route
 
 // EDIT route
+app.get('/blogs/:id/edit', function(req, res){
+  console.log("Retrieving blog to edit");
+  //Retrieve initial blog data
+  var id = req.params.id;
 
+  pool.connect(function(errConnectingToDatabase, db, done){
+    if(errConnectingToDatabase) {
+      console.log('There was an error connecting to database: ', errConnectingToDatabase);
+      res.sendStatus(500);
+    } else {
+      // MAKE DB QUERY
+      db.query('SELECT * FROM "posts" WHERE "id" = $1;', [id],
+      function(errMakingQuery, result){
+        done();
+        if(errMakingQuery){
+          console.log('There was an error making SELECT query: ', errMakingQuery);
+          res.sendStatus(500);
+        } else {
+          //console.log('Retrieved blog from DB: ', result.rows);
+          res.render("edit", {blog: result.rows}); //second variable is data object passed to client side
+        }
+      });
+    } // end of else
+  }); //end of pool.connect
+}); //End of EDIT route
 
 // UPDATE route
+app.put('/blogs/:id', function(req, res){
+  //get data from form
+  var title = req.body.title;
+  var image = req.body.image_url;
+  var post = req.body.blog_post;
+  var id = req.params.id;
+
+  //Get blogs from the DB
+  pool.connect(function(errConnectingToDatabase, db, done){
+    if(errConnectingToDatabase) {
+      console.log('There was an error connecting to database: ', errConnectingToDatabase);
+      res.sendStatus(500);
+    } else {
+      // MAKE DB QUERY
+      db.query('UPDATE "posts" SET "title" = $1, "image_url" = $2, "blog_post" = $3 ' +
+      'WHERE "id" = $4;', [title, image, post, id],
+      function(errMakingQuery, result){
+        done();
+        if(errMakingQuery){
+          console.log('There was an error making UPDATE query: ', errMakingQuery);
+          res.sendStatus(500);
+        } else {
+          //console.log('Retrieved all blogs from DB: ', result.rows);
+          res.redirect("/blogs/" + id);
+        }
+      });
+    } // end of else
+  }); //end of pool.connect
+}); // end of UPDATE route
+
+
 
 // DESTROY route
 
