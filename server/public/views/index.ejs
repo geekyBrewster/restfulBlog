@@ -1,21 +1,35 @@
 <% include partials/header %>
-<div>
 
-  <header>
-    <div>
-      <h1>Welcome to the RESTful Blog!</h1>
+<div class="ui main text container">
+  <div class="ui huge header">RESTful Blog App</div>
+  <div class="ui top attached segement">
+    <div class="ui divided items">
+
+      <% blogs.forEach(function(blog){ %>
+      <div class="item">
+        <div class="image">
+          <img src="<%= blog.image_url %>">
+        </div>
+        <div class="content">
+          <a class="header href="#/blogs/<%= blog.id %>"><%= blog.title %></a>
+          <div class="meta">
+            <span><%= blog.created.toDateString() %></span>
+          </div>
+          <div class="description">
+            <p><%- blog.blog_post.substring(0,100) %>...</p>
+          </div>
+          <div class="extra">
+            <a class="ui floated basic violet button " href="/blogs/<%= blog.id %>">
+              Read more
+              <i class="right chevron icon"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <% }) %>
+
     </div>
-  </header>
-
-    <% blogs.forEach(function(blog){ %>
-    <div class="ui main text container segment">
-      <h2><%= blog.title %></h2>
-      <img src="<%= blog.image_url %>">
-      <h3><%= blog.created.toDateString() %></h3>
-      <p><%= blog.blog_post.substring(0,100) %>...</p>
-      <a href="/blogs/<%- blog.id %>">Read more</a>
-    </div>
-    <% }) %>
-
+  </div>
 </div>
+
 <% include partials/footer %>
